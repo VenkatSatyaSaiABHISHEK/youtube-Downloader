@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Download YouTube Videos</title>
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="{{ url_for('static', filename='icon-192.png') }}">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 30px;
+      color: #000;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #fff;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input, select {
+      background-color: rgba(255, 255, 255, 0.7);
+      border: 1px solid #ccc;
+      color: #000;
+    }
+
+    button {
+      background-color: #fff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #ddd;
+    }
+
+    #loader {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 4px solid #888;
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .youtube-frame {
+      width: 100%;
+      max-width: 1000px;
+      height: 500px;
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    @media (max-width: 768px) {
+      .youtube-frame { height: 300px; }
+      .container { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>📥 Download YouTube</h1>
+    <form id="downloadForm" action="/download" method="post">
+      <input type="text" name="url" id="urlInput" placeholder="Paste YouTube URL" required />
+      <select name="type" required>
+        <option value="video">Single Video</option>
+        <option value="playlist">Playlist</option>
+      </select>
+      <button type="submit">Download</button>
+      <div id="loader">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+      </div>
+    </form>
+  </div>
+
+  <iframe
+    id="videoPreview"
+    class="youtube-frame"
+    src=""
+    allowfullscreen
+    title="YouTube Video Preview"
+  ></iframe>
+
+  <script>
+    const form = document.getElementById('downloadForm');
+    const loader = document.getElementById('loader');
+    const input = document.getElementById('urlInput');
+    const iframe = document.getElementById('videoPreview');
+
+    function getVideoId(url) {
+      const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/|.+\?v=))([\w-]{11})/;
+      const match = url.match(regex);
+      return match ? match[1] : null;
+    }
+
+    input.addEventListener('input', () => {
+      const url = input.value;
+      const videoId = getVideoId(url);
+      if (videoId) {
+        iframe.src = `https://www.youtube.com/embed/${videoId}`;
+      }
+    });
+
+    form.addEventListener('submit', function () {
+      loader.style.display = 'block';
+    });
+
+    
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+      .then(() => console.log("Service Worker Registered"));
+  }
+
+  </script>
+
+</body>
+</html>
